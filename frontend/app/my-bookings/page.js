@@ -11,7 +11,7 @@ export default function MyBookingsPage() {
   useEffect(() => {
     const fetchMySeats = async () => {
       try {
-        const res = await fetch("http://localhost:5001/api/seats", {
+        const res = await fetch("https://zapphire-backend.onrender.com/api/seats", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
