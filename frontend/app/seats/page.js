@@ -17,24 +17,25 @@ export default function SeatsPage() {
     fetch(`${BASE_URL}/api/seats`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("👉 SEATS RECEIVED:", data); // ✅ हे टाकलंय का confirm कर
+        console.log("👉 SEATS RECEIVED:", data);
         setSeats(data);
       })
       .catch((err) => console.error("Error fetching seats:", err));
   }, []);
-  
 
   const toggleSeat = (seatId, isBooked) => {
     if (isBooked) return;
 
-    if (selected.includes(seatId)) {
-      setSelected((prev) => prev.filter((id) => id !== seatId));
+    const seatIdStr = seatId.toString();
+
+    if (selected.includes(seatIdStr)) {
+      setSelected((prev) => prev.filter((id) => id !== seatIdStr));
     } else {
       if (selected.length >= 7) {
         setMessage("⚠️ You can only select up to 7 seats.");
         return;
       }
-      setSelected((prev) => [...prev, seatId]);
+      setSelected((prev) => [...prev, seatIdStr]);
     }
   };
 
@@ -85,9 +86,9 @@ export default function SeatsPage() {
         setMessage("❌ All your seats were cancelled.");
         const refreshed = await fetch(`${BASE_URL}/api/seats`);
         setSeats(await refreshed.json());
-        setSelected([]); // ✅ ADD THIS LINE
-        setSuccess(true); // ✅ bounce animation
-        setTimeout(() => setSuccess(false), 3000); // ✅ reset after animation
+        setSelected([]);
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
       } else {
         setMessage(data.message || "Cancellation failed");
       }
@@ -105,7 +106,7 @@ export default function SeatsPage() {
 
       <div className="grid grid-cols-7 gap-3 justify-center mb-8">
         {seats.map((seat) => {
-          const isSelected = selected.includes(seat.id);
+          const isSelected = selected.includes(seat.id.toString());
           return (
             <div
               key={seat.id}
@@ -119,7 +120,7 @@ export default function SeatsPage() {
                   : "bg-green-500 hover:bg-green-600 text-white"
               }`}
             >
-              {seat.row_number}-{seat.seat_number}
+              {`${seat.row_number}-${seat.seat_number}`}
             </div>
           );
         })}
