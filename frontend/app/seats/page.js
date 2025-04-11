@@ -11,8 +11,10 @@ export default function SeatsPage() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
+  const BASE_URL = "https://zapphire-backend.onrender.com";
+
   useEffect(() => {
-    fetch("http://localhost:5001/api/seats")
+    fetch(`${BASE_URL}/api/seats`)
       .then((res) => res.json())
       .then((data) => setSeats(data))
       .catch((err) => console.error("Error fetching seats:", err));
@@ -39,7 +41,7 @@ export default function SeatsPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5001/api/book", {
+      const res = await fetch(`${BASE_URL}/api/book`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +55,7 @@ export default function SeatsPage() {
         setSuccess(true);
         setMessage("🎉 Seats booked successfully!");
         setSelected([]);
-        const refreshed = await fetch("http://localhost:5001/api/seats");
+        const refreshed = await fetch(`${BASE_URL}/api/seats`);
         setSeats(await refreshed.json());
         setTimeout(() => setSuccess(false), 3000);
       } else {
@@ -67,7 +69,7 @@ export default function SeatsPage() {
 
   const handleCancel = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/cancel", {
+      const res = await fetch(`${BASE_URL}/api/cancel`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -77,7 +79,7 @@ export default function SeatsPage() {
       const data = await res.json();
       if (res.ok) {
         setMessage("❌ All your seats were cancelled.");
-        const refreshed = await fetch("http://localhost:5001/api/seats");
+        const refreshed = await fetch(`${BASE_URL}/api/seats`);
         setSeats(await refreshed.json());
       } else {
         setMessage(data.message || "Cancellation failed");
