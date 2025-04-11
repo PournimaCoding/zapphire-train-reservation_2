@@ -16,9 +16,13 @@ export default function SeatsPage() {
   useEffect(() => {
     fetch(`${BASE_URL}/api/seats`)
       .then((res) => res.json())
-      .then((data) => setSeats(data))
+      .then((data) => {
+        console.log("👉 SEATS RECEIVED:", data); // ✅ हे टाकलंय का confirm कर
+        setSeats(data);
+      })
       .catch((err) => console.error("Error fetching seats:", err));
   }, []);
+  
 
   const toggleSeat = (seatId, isBooked) => {
     if (isBooked) return;
