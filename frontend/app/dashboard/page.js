@@ -35,7 +35,7 @@ export default function DashboardPage() {
         console.error(err);
         router.push("/login");
       });
-  }, []);
+  }, [router]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-200 text-gray-800 p-6">
@@ -45,7 +45,7 @@ export default function DashboardPage() {
         {userId ? (
           <>
             <p className="text-lg font-medium mb-2">{message}</p>
-            <p className="text-gray-600 text-sm">You're logged in as <span className="font-semibold text-blue-500">User ID: {userId}</span></p>
+            <p className="text-gray-600 text-sm">You&apos;re logged in! <span className="font-semibold text-blue-500">User ID: {userId}</span></p>
             <button
               className="mt-6 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
               onClick={() => router.push("/seats")}
