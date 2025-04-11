@@ -47,7 +47,7 @@ export default function DashboardPage() {
         {userId ? (
           <>
             <p className="text-lg font-medium mb-2">{message}</p>
-            <p className="text-gray-600 text-sm">You're logged in! <span className="font-semibold text-blue-500">User ID: {userId}</span></p>
+            <p className="text-gray-600 text-sm">You&apos;re logged in! <span className="font-semibold text-blue-500">User ID: {userId}</span></p>
             <button
               className="mt-6 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
               onClick={() => router.push("/seats")}
