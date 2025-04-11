@@ -1,120 +1,146 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+export default function SeatsPage() {
+  const [seats, setSeats] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   useEffect(() => {
-    const existingToken = localStorage.getItem("token");
-    if (existingToken) {
-      router.push("/seats");
-    }
+    fetch("http://localhost:5001/api/seats")
+      .then((res) => res.json())
+      .then((data) => setSeats(data))
+      .catch((err) => console.error("Error fetching seats:", err));
   }, []);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
+  const toggleSeat = (seatId, isBooked) => {
+    if (isBooked) return;
+
+    if (selected.includes(seatId)) {
+      setSelected((prev) => prev.filter((id) => id !== seatId));
+    } else {
+      if (selected.length >= 7) {
+        setMessage("⚠️ You can only select up to 7 seats.");
+        return;
+      }
+      setSelected((prev) => [...prev, seatId]);
+    }
+  };
+
+  const handleBooking = async () => {
+    if (selected.length === 0) {
+      setMessage("Please select at least one seat 😅");
+      return;
+    }
 
     try {
-      const res = await fetch("http://localhost:5001/api/login", {
+      const res = await fetch("http://localhost:5001/api/book", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ seatsRequested: selected.length }),
       });
 
       const data = await res.json();
-
-      if (res.ok && data.token) {
-        localStorage.setItem("token", data.token);
-        router.push("/seats");
+      if (res.ok) {
+        setSuccess(true);
+        setMessage("🎉 Seats booked successfully!");
+        setSelected([]);
+        const refreshed = await fetch("http://localhost:5001/api/seats");
+        setSeats(await refreshed.json());
+        setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(data.message || "Login failed");
+        setMessage(data.message || "Booking failed");
       }
     } catch (err) {
-      setError("Something went wrong");
+      console.error("Booking error:", err);
+      setMessage("Something went wrong");
+    }
+  };
+
+  const handleCancel = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/api/cancel", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setMessage("❌ All your seats were cancelled.");
+        const refreshed = await fetch("http://localhost:5001/api/seats");
+        setSeats(await refreshed.json());
+      } else {
+        setMessage(data.message || "Cancellation failed");
+      }
+    } catch (err) {
+      console.error("Cancel error:", err);
+      setMessage("Something went wrong while cancelling");
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Welcome Back 👋</h2>
-      <form onSubmit={handleLogin} style={styles.form}>
-        <input
-          type="email"
-          placeholder="📧 Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ ...styles.input, color: "black" }} // 🖤 text color
-          required
-        />
-        <input
-          type="password"
-          placeholder="🔒 Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ ...styles.input, color: "black" }} // 🖤 text color
-          required
-        />
-        <button type="submit" style={styles.button}>
-          🚀 Login
+    <div className="p-6 max-w-4xl mx-auto text-center">
+      <h2 className="text-3xl font-bold text-indigo-700 mb-4 animate-pulse">
+        🚆 Welcome to Zapphire Seat Booking
+      </h2>
+
+      <div className="grid grid-cols-7 gap-3 justify-center mb-8">
+        {seats.map((seat) => {
+          const isSelected = selected.includes(seat.id);
+          return (
+            <div
+              key={seat.id}
+              onClick={() => toggleSeat(seat.id, seat.is_booked)}
+              className={`cursor-pointer px-4 py-2 rounded-lg font-medium shadow-md transition-all
+              ${
+                seat.is_booked
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : isSelected
+                  ? "bg-blue-600 text-white animate-pulse"
+                  : "bg-green-500 hover:bg-green-600 text-white"
+              }`}
+            >
+              {seat.row_number}-{seat.seat_number}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex justify-center gap-6 mb-6">
+        <button
+          onClick={handleBooking}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg transition-transform hover:scale-105"
+        >
+          ✅ Reserve Seats
         </button>
-        {error && <p style={styles.error}>{error}</p>}
-      </form>
+
+        <button
+          onClick={handleCancel}
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg transition-transform hover:scale-105"
+        >
+          🔄 Cancel My Booking
+        </button>
+      </div>
+
+      {message && (
+        <div
+          className={`mt-4 text-lg font-medium ${
+            success ? "text-green-600 animate-bounce" : "text-rose-600"
+          }`}
+        >
+          {message}
+        </div>
+      )}
     </div>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "400px",
-    margin: "60px auto",
-    backgroundColor: "#fefefe",
-    padding: "30px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 18px rgba(0, 0, 0, 0.1)",
-    border: "1px solid #e0e0e0",
-  },
-  heading: {
-    textAlign: "center",
-    marginBottom: "20px",
-    fontSize: "26px",
-    color: "#333",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
-  },
-  input: {
-    padding: "12px",
-    fontSize: "16px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-    outline: "none",
-    backgroundColor: "#fff",
-  },
-  button: {
-    padding: "12px",
-    backgroundColor: "#3b82f6",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "16px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    transition: "0.3s",
-  },
-  error: {
-    color: "red",
-    marginTop: "10px",
-    textAlign: "center",
-  },
-};
-
