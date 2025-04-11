@@ -15,7 +15,7 @@ export default function SignupPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5001/api/signup", {
+      const res = await fetch("https://zapphire-backend.onrender.com/api/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
