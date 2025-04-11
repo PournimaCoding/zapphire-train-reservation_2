@@ -2,11 +2,14 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const pool = new Pool({
-  user: 'postgres',           // 🔁 Replace with your actual DB username
-  host: 'localhost',
-  database: 'zapphire_db',    // 🔁 Replace with your DB name if different
-  password: 'Poorni@123',  // 🔁 Replace with your actual password
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false, // 🔐 Supabase साठी secure SSL connection लागतो
+  },
 });
 
 module.exports = pool;
