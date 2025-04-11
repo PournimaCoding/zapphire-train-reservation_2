@@ -81,6 +81,9 @@ export default function SeatsPage() {
         setMessage("❌ All your seats were cancelled.");
         const refreshed = await fetch(`${BASE_URL}/api/seats`);
         setSeats(await refreshed.json());
+        setSelected([]); // ✅ ADD THIS LINE
+        setSuccess(true); // ✅ bounce animation
+        setTimeout(() => setSuccess(false), 3000); // ✅ reset after animation
       } else {
         setMessage(data.message || "Cancellation failed");
       }
