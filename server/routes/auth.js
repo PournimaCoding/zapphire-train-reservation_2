@@ -61,9 +61,9 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in login:', error.message);
-    res.status(500).json({ message: 'Server error' });
-  }
+    console.error("Error in login:", error); // 🔥 Full object log
+    res.status(500).json({ message: "Server error" });
+  }  
 });
 
 // ========== Protected Test Route ==========
