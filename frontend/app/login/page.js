@@ -21,7 +21,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5001/api/login", {
+      const res = await fetch("https://zapphire-backend.onrender.com/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.token) {
-        localStorage.setItem("token", data.token); // ✅ Store JWT
+        localStorage.setItem("token", data.token);
         router.push("/seats");
       } else {
         setError(data.message || "Login failed");
@@ -98,6 +98,8 @@ const styles = {
     borderRadius: "6px",
     border: "1px solid #ccc",
     outline: "none",
+    color: "black", // 🖤 Black text added here
+    backgroundColor: "#fff",
   },
   button: {
     padding: "12px",
